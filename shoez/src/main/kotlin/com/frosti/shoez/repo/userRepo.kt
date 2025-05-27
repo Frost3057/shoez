@@ -1,10 +1,9 @@
 package com.frosti.shoez.repo
 
-import com.frosti.shoez.model.User
+import com.frosti.shoez.model.user
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.MongoRepository
 
-interface userRepo:MongoRepository<User,ObjectId> {
-    fun findUserbyUID(uid:ObjectId):User?
-    fun findUserbyEmail(email:String):User?
+interface userRepo:MongoRepository<user,ObjectId> {
+    fun findUserByEmail(email: String): user?
 }

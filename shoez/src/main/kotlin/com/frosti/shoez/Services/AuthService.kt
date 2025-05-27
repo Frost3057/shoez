@@ -1,7 +1,7 @@
 package com.frosti.shoez.Services
 
 import com.frosti.shoez.model.RefreshToken
-import com.frosti.shoez.model.User
+import com.frosti.shoez.model.user
 import com.frosti.shoez.repo.refreshRepo
 import com.frosti.shoez.repo.userRepo
 import org.bson.types.ObjectId
@@ -25,19 +25,19 @@ class AuthService(
         val refreshToken:String
     )
     fun register(email:String,password:String){
-        val user = userRepo.findUserbyEmail(email)?:throw ResponseStatusException(
+        val user = userRepo.findUserByEmail(email)?:throw ResponseStatusException(
             HttpStatusCode.valueOf(401),
             "User already exists"
         )
         userRepo.save(
-            User(
+            user(
                 email = email,
                 password = hashEncoder.encodePass(password)
             )
         )
     }
     fun login(email:String,password: String):TokenPair{
-        val use = userRepo.findUserbyEmail(email)?:throw ResponseStatusException(
+        val use = userRepo.findUserByEmail(email)?:throw ResponseStatusException(
             HttpStatusCode.valueOf(401),
             "User already exists"
         )
@@ -70,15 +70,17 @@ class AuthService(
             )
         }
         val uid = jwtService.findUserIdFromToken(token)
-        val user = userRepo.findUserbyUID(ObjectId(uid))?:throw ResponseStatusException(
-            HttpStatusCode.valueOf(401),
-            "bad info"
-        )
-        val refreshToken = refreshRepo.findByUidandHashedToken(ObjectId(uid),HashToken(token))?:throw ResponseStatusException(
+        val user = userRepo.findById(ObjectId(uid)).orElseThrow {
+            throw ResponseStatusException(
+                HttpStatusCode.valueOf(401),
+                "bad info"
+            )
+        }
+        val refreshToken = refreshRepo.findByUserIdAndHashedToken(ObjectId(uid),HashToken(token))?:throw ResponseStatusException(
             HttpStatusCode.valueOf(401),
             "token might have expired"
         )
-        refreshRepo.deleteRefreshTokenByUidandHashedToken(user.uid,refreshToken.hashedToken)
+        refreshRepo.deleteRefreshTokenByUserIdAndHashedToken(user.uid,refreshToken.hashedToken)
         val accessToken = jwtService.generateAccessToken(uid)
         val refreshToke = jwtService.generateRefreshToken(uid)
         val expiry = jwtService.refreshTime
