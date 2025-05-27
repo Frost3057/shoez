@@ -1,7 +1,5 @@
-package com.frosti.shoez
+package com.frosti.shoez.controllers
 
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Dynamic
 import com.frosti.shoez.model.Order
 import com.frosti.shoez.model.shoe
 import com.frosti.shoez.repo.orderRepo
@@ -10,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.sql.Timestamp
 import java.time.Instant
 
 @RestController
@@ -28,7 +25,7 @@ class orderController
         val status :String
     )
     @PostMapping("/place_order")
-    fun placeOrder(@RequestBody body:requestType):responseType{
+    fun placeOrder(@RequestBody body: requestType): responseType {
         println("Body: $body")
         val order = orderRepo.save(
             Order(
@@ -51,7 +48,7 @@ class orderController
         }
         return list;
     }
-    private fun Order.toResponse(or:List<Map<String,Any>>):responseType{
+    private fun Order.toResponse(or:List<Map<String,Any>>): responseType {
         return responseType(
             orderId = OId,
             order = or,
