@@ -25,10 +25,13 @@ class AuthService(
         val refreshToken:String
     )
     fun register(email:String,password:String){
-        val user = userRepo.findUserByEmail(email)?:throw ResponseStatusException(
-            HttpStatusCode.valueOf(401),
-            "User already exists"
-        )
+        val user = userRepo.findUserByEmail(email)
+        if(user!=null){
+            throw ResponseStatusException(
+                HttpStatusCode.valueOf(401),
+                "User already exists"
+            )
+        }
         userRepo.save(
             user(
                 email = email,
